@@ -1,0 +1,37 @@
+{
+  "name": "transcript-parser",
+  "version": "0.0.1",
+  "description": "Parses plaintext speech/debate/radio transcripts into JavaScript objects.",
+  "main": "app.js",
+  "scripts": {
+    "test": "node ./node_modules/mocha/bin/mocha"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/willshiao/transcript-parser.git"
+  },
+  "keywords": [
+    "transcript",
+    "parse",
+    "speech",
+    "debate",
+    "radio",
+    "statistics"
+  ],
+  "author": "William Shiao <willshiao@gmail.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/willshiao/transcript-parser/issues"
+  },
+  "homepage": "https://github.com/willshiao/transcript-parser#readme",
+  "devDependencies": {
+    "chai": "^3.5.0",
+    "chai-as-promised": "^5.3.0",
+    "mocha": "^2.4.5"
+  },
+  "dependencies": {
+    "bluebird": "^3.3.4",
+    "lodash": "^4.9.0",
+    "string": "^3.3.1"
+  }
+}
