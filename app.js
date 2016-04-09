@@ -12,13 +12,16 @@ const _ = require('lodash');
 const TranscriptParser = function (options) {
   options = options || {};
   this.defaultSettings = {
-    removeActions: true
+    removeActions: true,
+    removeAnnotations: true,
+    removeTimestamps: true, //Overriden by removeAnnotations
+    removeUnknownSpeaker: false
   };
   this.settings = _.assign(this.defaultSettings, options);
   this.regex = {
     newLine: /\r?\n/,
-    newLineOrAction: /(?:\r?\n|\([A-Z\ ]+\))/,
-    speaker: /^([A-Z\d\ \/,.\-\(\)]+)(?: \[.+\])?:/,
+    action: /\([A-Z\ ]+\)\ ?/,
+    speaker: /^([A-Z\d\ \/,.\-\(\)]+)(?: \[.+\])?:\ ?/,
     timestamp: /\[\d{1,2}:\d{1,2}:\d{1,2}\]\ ?/,
     annotation: /\[.+?\]\ ?/
   };
@@ -28,16 +31,25 @@ const TranscriptParser = function (options) {
 const proto = TranscriptParser.prototype;
 
 proto.parseOne = function(transcript) {
-  const lines = transcript.split(this.settings.removeActions?
-    this.regex.newLineOrAction : this.regex.newLine)
-    //Remove blank lines
-    .filter(line => line.length > 0)
+  var lines = transcript.split(this.regex.newLine)
+    .filter(line => line.length > 0); //Remove blank lines
+  lines = (this.settings.removeActions) ? lines.map(line => line.split(this.regex.action).join('')): lines;
+  if(this.settings.removeAnnotations) {
     //Remove annotations
-    .map(line => line.split(this.regex.annotation).join(''));
+    lines = lines.map(line => line.split(this.regex.annotation).join(''));
+  } else if(this.settings.removeTimestamps) {
+    //Remove timestamps
+    lines = lines.map(line => line.split(this.regex.timestamp).join(''));
+  }
+
+  //Output object
   const output = {};
+  //Object containing the speakers and their lines
   output.speaker = {};
+  //List of the speakers, in order
   output.order = [];
 
+  //Current speaker
   var speaker = 'none';
 
   for(var i = 0; i < lines.length; i++) {
@@ -45,12 +57,14 @@ proto.parseOne = function(transcript) {
       speaker = this.regex.speaker.exec(lines[i])[1] || speaker;
       lines[i] = lines[i].replace(this.regex.speaker, '');
     }
-    if(!(speaker in output.speaker)) {
+    if(!(speaker in output.speaker) &&
+      (!this.settings.removeUnknownSpeaker || speaker !== 'none')) {
       output.speaker[speaker] = [];
     }
-    output.speaker[speaker].push(lines[i]);
-    output.order.push(speaker);
-
+    if(!this.settings.removeUnknownSpeaker || speaker !== 'none') {
+      output.speaker[speaker].push(lines[i]);
+      output.order.push(speaker);
+    }
   }
   return output;
 };

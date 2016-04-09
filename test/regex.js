@@ -1,8 +1,8 @@
 "use strict";
 const TranscriptParser = require('../app.js');
 const chai = require('chai');
-
 chai.should();
+
 
 describe('TranscriptParser', function() {
   const transcriptParser = new TranscriptParser();
@@ -16,14 +16,10 @@ describe('TranscriptParser', function() {
       });
     });
 
-    describe('.newLineOrAction', function() {
-      it('should split newlines', function() {
-        const testStr = 'a\nb\r\nc';
-        testStr.split(regex.newLineOrAction).should.eql(['a','b','c']);
-      });
+    describe('.action', function() {
       it('should split actions', function() {
-        const testStr = 'The(LOUD APPLAUSE)chicken(SILENCE)crossed(LAUGHTER)';
-        testStr.split(regex.newLineOrAction).should.eql(['The','chicken','crossed','']);
+        const testStr = 'The (LOUD APPLAUSE) chicken (SILENCE) crossed (LAUGHTER)';
+        testStr.split(regex.action).should.eql(['The ','chicken ','crossed ','']);
       });
     });
 
