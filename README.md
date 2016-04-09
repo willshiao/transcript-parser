@@ -25,17 +25,17 @@ The constructor for `TranscriptParser` accepts an options argument.
 
 Options:
 
-- removeActions
+- `removeActions`
     + default: `true`
     + Specifies if the parser should remove actions (e.g. "(APPLAUSE)").
-- removeAnnotations
+- `removeAnnotations`
     + default: `true`
     + Specifies if the parser should remove annotations (surrounded by `[]`).
-- removeTimestamps
+- `removeTimestamps`
     + default: `true`
     + **True if `removeAnnotations` is true**
     + Specifies if the parser should remove timestamps (in the `[##:##:##]` format).
-- removeUnknownSpeaker
+- `removeUnknownSpeaker`
     + default: `false`
     + Specifies if the parser should remove lines that have no associated speaker.
 
