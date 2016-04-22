@@ -15,7 +15,8 @@ const TranscriptParser = function (options) {
     removeActions: true,
     removeAnnotations: true,
     removeTimestamps: true, //Overriden by removeAnnotations
-    removeUnknownSpeaker: false
+    removeUnknownSpeaker: false,
+    aliases: {}
   };
   this.settings = _.assign(this.defaultSettings, options);
   this.regex = {
@@ -67,6 +68,42 @@ proto.parseOne = function(transcript) {
     }
   }
   return output;
+};
+
+proto.resolveAliases = function(data) {
+  var aliases = this.settings.aliases;
+  
+  if(!aliases) return;
+
+  var transcript = data.speaker;
+
+  for(var speaker in transcript) {
+    for(var trueName in aliases) {
+      for(var aliasKey in aliases[trueName]) {
+        var alias = aliases[trueName][aliasKey];
+          //If the regex matches
+          transcript[trueName] = transcript[trueName] ?
+            _.concat(transcript[trueName], transcript[speaker]) : 
+            transcript[trueName] = transcript[speaker];
+          delete transcript[speaker];
+          break;
+      }
+    }
+  }
+  
+
+  data.order = data.order.map(speaker => {
+    for(trueName in aliases) {
+      for(var aliasKey in aliases[trueName]) {
+        if(speaker.search(aliases[trueName][aliasKey]) !== -1) {
+          return trueName;
+        }
+      }
+    }
+    return speaker;
+  });
+
+  return data;
 };
 
 
