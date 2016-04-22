@@ -23,7 +23,7 @@ Parses plaintext speech/debate/radio transcripts into JavaScript objects. It is 
 
 The constructor for `TranscriptParser` accepts an options argument.
 
-Options:
+#### Options:
 
 - `removeActions`
     + default: `true`
@@ -38,6 +38,11 @@ Options:
 - `removeUnknownSpeaker`
     + default: `false`
     + Specifies if the parser should remove lines that have no associated speaker.
+- `aliases`
+    + default: `{}`
+    + A object with the real name as the key and an `Array` of the aliases' regular expressions as the value.
+    + Example: `{ "Mr. Robot": [ /[A-Z\ ]*SLATER[A-Z\ ]*/ ] }`
+        * Renames all speakers who match the regex to "Mr. Robot".
 
 
 ## Documentation
@@ -48,9 +53,25 @@ The `parseOne()` method parses a string and returns an object representing it.
 
 #### Syntax
 
-`tp.parseOne(_transcript_)`
+`tp.parseOne(transcript)`
 
 ##### Parameters
 
 - `transcript`
     - The transcript, as a `string`.
+
+
+### .resolveAlias()
+
+The `resolveAlias()` method resolves all aliases specified in the configuration passed to the `TranscriptParser`'s constructor (see above).
+
+Renames the names in the `order` list to match the new names in the transcript. Note that there is a signifigant performance penalty, so don't use this method unless you need it.
+
+#### Syntax
+
+`tp.resolveAlias(data)`
+
+##### Parameters
+
+- `data`
+    - The transcript object after being parsed.
