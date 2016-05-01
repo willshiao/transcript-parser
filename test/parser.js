@@ -80,6 +80,7 @@ describe('TranscriptParser', function() {
         })
         .catch(e => done(e));
     });
+
   });
 
 
@@ -176,6 +177,7 @@ describe('TranscriptParser', function() {
         })
         .catch(e => done(e));
     });
+
   });
 
   /*
@@ -214,7 +216,48 @@ describe('TranscriptParser', function() {
     });
   });
 
-  
+  /*
+   * For the asynchronous resolveAliases method
+   *
+   */
+  describe('#resolveAliases()', function () {
+
+    it('should resolve aliases correctly', function(done) {
+      const tp = new TranscriptParser({
+        aliases: { "DONALD TRUMP": [ /.*TRUMP.*/ ] }
+      });
+      readSample(2)
+        .bind({})
+        .then(info => {
+          return Promise.fromCallback(cb => tp.parseOne(info, cb));
+        }).then(result => {
+          return Promise.fromCallback(cb => tp.resolveAliases(result, cb));
+        }).then(result => {
+          this.result = result;
+          return readExpected(2);
+        }).then(expected => {
+          this.result.should.eql(JSON.parse(expected));
+          done();
+        })
+        .catch(e => done(e));
+    });
+
+    it('should return unchanged data if aliases are not set', function(done) {
+      const tp = new TranscriptParser({aliases: {}});
+      readSample(2)
+      .bind({})
+        .then(info => {
+          return Promise.fromCallback(cb => tp.parseOne(info, cb));
+        }).then(parsed => {
+          this.parsed = parsed;
+          return Promise.fromCallback(cb => tp.resolveAliases(parsed, cb));
+        }).then(resolved => {
+          this.parsed.should.equal(resolved);
+          done();
+        })
+        .catch(e => done(e));
+    });
+  });
 
 });
 

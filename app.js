@@ -1,6 +1,6 @@
 "use strict";
 /***********************
- Module dependencies
+ * Module dependencies
  ***********************/
 // const S = require('string');
 const _ = require('lodash');
@@ -8,7 +8,7 @@ const Promise = require('bluebird');
 
 
 /***********************
- Object creation
+ * Object creation
  ***********************/
 const TranscriptParser = function (options) {
   options = options || {};
@@ -33,6 +33,9 @@ const TranscriptParser = function (options) {
 const proto = TranscriptParser.prototype;
 const tp = this;
 
+/***********************
+ * Synchronous parseOne method
+ ***********************/
 proto.parseOneSync = function(transcript) {
   var lines = transcript.split(this.regex.newLine)
     .filter(line => line.length > 0); //Remove blank lines
@@ -79,6 +82,9 @@ proto.parseOneSync = function(transcript) {
   return output;
 };
 
+/***********************
+ * Asynchronous parseOne method
+ ***********************/
 proto.parseOne = function(transcript, cb) {
   //Output object
   const output = {};
@@ -134,10 +140,13 @@ proto.parseOne = function(transcript, cb) {
     .catch(err => cb(err));
 };
 
+/***********************
+ * Synchronous resolveAliases method
+ ***********************/
 proto.resolveAliasesSync = function(data) {
   const aliases = this.settings.aliases;
   if(_.isEmpty(aliases)) return data;
-  var speakers = data.speaker;
+  const speakers = data.speaker;
 
   for(var speaker in speakers) {
     for(var trueName in aliases) {
@@ -174,5 +183,44 @@ proto.resolveAliasesSync = function(data) {
   return data;
 };
 
+/***********************
+ * Asynchronous resolveAliases method
+ ***********************/
+proto.resolveAliases = function(data, cb) {
+  const aliases = this.settings.aliases;
+  if(_.isEmpty(aliases)) return cb(null, data);
+  const speakers = data.speaker;
+
+  return Promise.all(_.keys(speakers).map(speakerName => {
+    return Promise.all(_.keys(aliases).map(trueName => {
+      return Promise.each(aliases[trueName], regex => {
+        //If the regex matches
+        if(regex.test(speakerName)) {
+          //Add the lines from the regex-matched speaker
+          //to the new speaker if the new speaker exists
+          speakers[trueName] = speakers[trueName] ?
+            _.concat(speakers[trueName], speakers[speakerName]) :
+            //Otherwise, make a new list 
+            speakers[trueName] = speakers[speakerName];
+          //Delete the old key
+          delete speakers[speakerName];
+          return;
+        }
+      })
+    }))
+  })).then(() => {
+    return Promise.each(data.order, (speaker, speakerIndex) => {
+      return Promise.all(_.map(aliases, (alias, trueName) => {
+        return Promise.all(_.map(alias, (regex, regexIndex) => {
+          if(speaker.search(regex) !== -1) {
+            return data.order[speakerIndex] = trueName;
+          }
+        }));
+      }));
+    });
+  }).then(() => {
+    cb(null, data);
+  }).catch(err => cb(err));
+};
 
 module.exports = TranscriptParser;
