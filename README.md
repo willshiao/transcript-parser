@@ -59,7 +59,23 @@ The `parseOneSync()` method parses a string and returns an object representing i
 ##### Parameters
 
 - `transcript`
-    - The transcript, as a `string`.
+    + The transcript, as a `string`.
+
+
+### .parseOne()
+
+The `parseOne()` method parses a string and returns an object representing it.
+
+#### Syntax
+
+`tp.parseOne(transcript, callback)`
+
+##### Parameters
+
+- `transcript`
+    + The transcript, as a `string`.
+- `callback(err, data)`
+    + A callback to be exectuted on function completion.
 
 
 ### .resolveAliasesSync()
@@ -75,4 +91,23 @@ Renames the names in the `order` list to match the new names in the transcript. 
 ##### Parameters
 
 - `data`
-    - The transcript object after being parsed.
+    + The transcript object after being parsed.
+ 
+
+### .resolveAliases()
+
+The `resolveAliases()` method resolves all aliases specified in the configuration passed to the `TranscriptParser`'s constructor (see above).
+
+Renames the names in the `order` list to match the new names in the transcript. Note that there is a signifigant performance penalty, so don't use this method unless you need it.
+
+#### Syntax
+
+`tp.resolveAliases(data, callback)`
+
+##### Parameters
+
+- `data`
+    + The transcript object after being parsed.
+- `callback(err, resolved)`
+    + A callback to be executed on function completion.
+
