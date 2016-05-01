@@ -35,3 +35,6 @@ node_modules
 # Sublime Text workspace project and cache files
 *.sublime-workspace
 *.sublime-project
+
+#Coverage Information
+coverage

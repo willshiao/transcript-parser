@@ -72,26 +72,30 @@ proto.parseOne = function(transcript) {
 
 proto.resolveAliases = function(data) {
   var aliases = this.settings.aliases;
-  
   if(!aliases) return;
+  var speakers = data.speaker;
 
-  var transcript = data.speaker;
-
-  for(var speaker in transcript) {
+  for(var speaker in speakers) {
     for(var trueName in aliases) {
       for(var aliasKey in aliases[trueName]) {
-        var alias = aliases[trueName][aliasKey];
-          //If the regex matches
-          transcript[trueName] = transcript[trueName] ?
-            _.concat(transcript[trueName], transcript[speaker]) : 
-            transcript[trueName] = transcript[speaker];
-          delete transcript[speaker];
+        var aliasRegex = aliases[trueName][aliasKey];
+        //If the regex matches
+        if(aliasRegex.test(speaker)) {
+          //Add the lines from the regex-matched speaker
+          //to the new speaker if the new speaker exists
+          speakers[trueName] = speakers[trueName] ?
+            _.concat(speakers[trueName], speakers[speaker]) :
+          //Otherwise, make a new list 
+            speakers[trueName] = speakers[speaker];
+          //Delete the old key
+          delete speakers[speaker];
           break;
+        }
       }
     }
   }
   
-
+  //Fix the names in the order array
   data.order = data.order.map(speaker => {
     for(trueName in aliases) {
       for(var aliasKey in aliases[trueName]) {

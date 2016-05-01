@@ -67,7 +67,6 @@ describe('TranscriptParser', function() {
         .catch(e => done(e));
     });
   });
-    
 });
 
 function readSample(sampleName) {

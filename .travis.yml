@@ -8,3 +8,5 @@ node_js:
   - "4.1"
   - "4.0"
   - "node"
+after_success:
+  - coveralls
