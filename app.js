@@ -15,14 +15,14 @@ const TranscriptParser = function (options) {
     removeActions: true,
     removeAnnotations: true,
     removeTimestamps: true, //Overriden by removeAnnotations
-    removeUnknownSpeaker: false,
+    removeUnknownSpeakers: false,
     aliases: {}
   };
   this.settings = _.assign(this.defaultSettings, options);
   this.regex = {
     newLine: /\r?\n/,
     action: /\([A-Z\ ]+\)\ ?/,
-    speaker: /^([A-Z\d\ \/,.\-\(\)]+)(?: \[.+\])?:\ ?/,
+    speaker: /^((?:\[\d{1,2}:\d{1,2}:\d{1,2}\]\ ?)?[A-Z\d\ \/,.\-\(\)]+)(?: \[.+\])?:\ ?/,
     timestamp: /\[\d{1,2}:\d{1,2}:\d{1,2}\]\ ?/,
     annotation: /\[.+?\]\ ?/
   };
@@ -55,14 +55,21 @@ proto.parseOne = function(transcript) {
 
   for(var i = 0; i < lines.length; i++) {
     if(lines[i].match(this.regex.speaker)) {
-      speaker = this.regex.speaker.exec(lines[i])[1] || speaker;
+      //Regex match
+      speaker = this.regex.speaker.exec(lines[i])[1];
+      //Remove the speaker from the line
       lines[i] = lines[i].replace(this.regex.speaker, '');
     }
+    //If the speaker's key doesn't already exist
     if(!(speaker in output.speaker) &&
-      (!this.settings.removeUnknownSpeaker || speaker !== 'none')) {
+      //And the speaker is defined or the setting to remove undefined speakers is false
+      (speaker !== 'none' || !this.settings.removeUnknownSpeakers)) {
+      //Set the output's speaker key to a new empty array
       output.speaker[speaker] = [];
     }
-    if(!this.settings.removeUnknownSpeaker || speaker !== 'none') {
+    //If the speaker is defined or the setting to remove undefined speakers is false
+    if(speaker !== 'none' || !this.settings.removeUnknownSpeakers) {
+      //Add the text to the output speaker's key and speaker name to the order array
       output.speaker[speaker].push(lines[i]);
       output.order.push(speaker);
     }
@@ -72,7 +79,7 @@ proto.parseOne = function(transcript) {
 
 proto.resolveAliases = function(data) {
   var aliases = this.settings.aliases;
-  if(!aliases) return;
+  if(_.isEmpty(aliases)) return data;
   var speakers = data.speaker;
 
   for(var speaker in speakers) {
