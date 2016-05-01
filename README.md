@@ -36,7 +36,7 @@ The constructor for `TranscriptParser` accepts an options argument.
     + default: `true`
     + **True if `removeAnnotations` is true**
     + Specifies if the parser should remove timestamps (in the `[##:##:##]` format).
-- `removeUnknownSpeaker`
+- `removeUnknownSpeakers`
     + default: `false`
     + Specifies if the parser should remove lines that have no associated speaker.
 - `aliases`
@@ -62,15 +62,15 @@ The `parseOne()` method parses a string and returns an object representing it.
     - The transcript, as a `string`.
 
 
-### .resolveAlias()
+### .resolveAliases()
 
-The `resolveAlias()` method resolves all aliases specified in the configuration passed to the `TranscriptParser`'s constructor (see above).
+The `resolveAliases()` method resolves all aliases specified in the configuration passed to the `TranscriptParser`'s constructor (see above).
 
 Renames the names in the `order` list to match the new names in the transcript. Note that there is a signifigant performance penalty, so don't use this method unless you need it.
 
 #### Syntax
 
-`tp.resolveAlias(data)`
+`tp.resolveAliases(data)`
 
 ##### Parameters
 
