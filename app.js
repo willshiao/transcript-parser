@@ -31,7 +31,7 @@ const TranscriptParser = function (options) {
 
 const proto = TranscriptParser.prototype;
 
-proto.parseOne = function(transcript) {
+proto.parseOneSync = function(transcript) {
   var lines = transcript.split(this.regex.newLine)
     .filter(line => line.length > 0); //Remove blank lines
   lines = (this.settings.removeActions) ? lines.map(line => line.split(this.regex.action).join('')): lines;
@@ -77,7 +77,7 @@ proto.parseOne = function(transcript) {
   return output;
 };
 
-proto.resolveAliases = function(data) {
+proto.resolveAliasesSync = function(data) {
   var aliases = this.settings.aliases;
   if(_.isEmpty(aliases)) return data;
   var speakers = data.speaker;
