@@ -4,6 +4,7 @@
  ***********************/
 // const S = require('string');
 const _ = require('lodash');
+const Promise = require('bluebird');
 
 
 /***********************
@@ -30,6 +31,7 @@ const TranscriptParser = function (options) {
 };
 
 const proto = TranscriptParser.prototype;
+const tp = this;
 
 proto.parseOneSync = function(transcript) {
   var lines = transcript.split(this.regex.newLine)
@@ -77,8 +79,63 @@ proto.parseOneSync = function(transcript) {
   return output;
 };
 
+proto.parseOne = function(transcript, cb) {
+  //Output object
+  const output = {};
+  //Object containing the speakers and their lines
+  output.speaker = {};
+  //List of the speakers, in order
+  output.order = [];
+
+  //Current speaker
+  var speaker = 'none';
+
+  //Remove blank lines
+  return Promise.filter(transcript.split(this.regex.newLine), line => line.length > 0)
+    .then(lines => {
+      if(this.settings.removeActions) {
+        return Promise.map(lines, line => line.split(this.regex.action).join(''))
+      }
+      return Promise.resolve(lines);
+    }).then(lines => {
+      if(this.settings.removeAnnotations) {
+        //Remove annotations
+        return Promise.map(lines, line => line.split(this.regex.annotation).join(''));
+      } else if(this.settings.removeTimestamps) {
+        //Remove timestamps
+        return Promise.map(lines, line => line.split(this.regex.timestamp).join(''));
+      }
+      return Promise.resolve(lines);
+    }).then(lines => {
+      return Promise.each(lines, (line, index) => {
+        if(line.match(this.regex.speaker)) {
+          //Regex match
+          speaker = this.regex.speaker.exec(line)[1];
+          //Remove the speaker from the line
+          line = line.replace(this.regex.speaker, '');
+        }
+        //If the speaker's key doesn't already exist
+        if(!(speaker in output.speaker) &&
+          //And the speaker is defined or the setting to remove undefined speakers is false
+          (speaker !== 'none' || !this.settings.removeUnknownSpeakers)) {
+          //Set the output's speaker key to a new empty array
+          output.speaker[speaker] = [];
+        }
+        //If the speaker is defined or the setting to remove undefined speakers is false
+        if(speaker !== 'none' || !this.settings.removeUnknownSpeakers) {
+          //Add the text to the output speaker's key and speaker name to the order array
+          output.speaker[speaker].push(line);
+          output.order.push(speaker);
+        }
+      });
+    }).then(() => {
+      cb(null, output);
+    })
+    .catch(err => cb(err));
+};
+
 proto.resolveAliasesSync = function(data) {
-  var aliases = this.settings.aliases;
+  const aliases = this.settings.aliases;
   if(_.isEmpty(aliases)) return data;
   var speakers = data.speaker;
 

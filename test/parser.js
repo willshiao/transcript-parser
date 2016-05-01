@@ -12,6 +12,10 @@ const EXPECTED_DIR = path.join(__dirname, 'expected');
 
 describe('TranscriptParser', function() {
 
+  /*
+   * For the synchronous parseOne method
+   *
+   */
   describe('#parseOneSync()', function(){
     const tp = new TranscriptParser();
 
@@ -78,6 +82,106 @@ describe('TranscriptParser', function() {
     });
   });
 
+
+  /*
+   * For the asynchronous parseOne method
+   *
+   */
+  describe('#parseOne()', function(){
+    const tp = new TranscriptParser();
+
+    it('should remove actions by default', function(done) {
+      const parser = new TranscriptParser();
+      parser.parseOne('PERSON A: Hello, (PAUSES) (DRINKS WATER) my name is Bob.(APPLAUSE)',
+      function(err, result) {
+        if(err) return done(err);
+        result.speaker.should.eql({
+          'PERSON A': [
+            'Hello, my name is Bob.'
+          ]
+        });
+        done();
+      });
+    });
+
+    it('should respect the removeActions setting', function(done) {
+      const parser = new TranscriptParser({removeActions: false});
+      var result = parser.parseOne('PERSON A: Hello, (PAUSES) (DRINKS WATER) my name is Bob.(APPLAUSE)',
+      function(err, result) {
+        if(err) return done(err);
+        result.speaker.should.eql({
+          'PERSON A': [
+            'Hello, (PAUSES) (DRINKS WATER) my name is Bob.(APPLAUSE)'
+          ]
+        });
+        done();
+      });
+    });
+
+    it('should respect the removeTimestamps setting', function(done) {
+      const parser = new TranscriptParser({removeAnnotations: false, removeTimestamps: false});
+      var result = parser.parseOne('[20:20:34] BERMAN: [2:1:41] The...',
+      function(err, result) {
+        if(err) return done(err);
+        result.speaker.should.eql({
+          '[20:20:34] BERMAN': [
+            '[2:1:41] The...'
+          ]
+        });
+        done();
+      });
+    });
+
+    it('should be able to remove timestamps without removing annotations', function(done) {
+      const parser = new TranscriptParser({removeAnnotations: false, removeTimestamps: true});
+      var result = parser.parseOne('[20:20:34] BERMAN: [2:1:41] The [first] name...',
+      function(err, result) {
+        if(err) return done(err);
+        result.speaker.should.eql({
+          'BERMAN': [
+            'The [first] name...'
+          ]
+        });
+        done();
+      });
+    });
+
+    it('should respect the remove unknown speakers setting', function(done) {
+      const parser = new TranscriptParser({removeUnknownSpeakers: true});
+      var result = parser.parseOne('The quick [brown] fox jumps over the (lazy) dog.',
+      function(err, result) {
+        if(err) return done(err);
+        result.should.eql({
+          speaker: {},
+          order: []
+        });
+        done();
+      });
+    });
+
+    it('should parse a transcript correctly', function(done) {
+      readSample(1)
+        .bind({})
+        .then(info => {
+          return Promise.fromCallback(cb => {
+            tp.parseOne(info, cb);
+          });
+        })
+        .then(result => {
+          this.result = result;
+          return readExpected(1);
+        }).then(expected => {
+          this.result.should.be.eql(JSON.parse(expected));
+          done();
+        })
+        .catch(e => done(e));
+    });
+  });
+
+  /*
+   * For the synchronous resolveAliases method
+   *
+   */
   describe('#resolveAliasesSync()', function () {
 
     it('should resolve aliases correctly', function(done) {
@@ -108,8 +212,10 @@ describe('TranscriptParser', function() {
         })
         .catch(e => done(e));
     });
-
   });
+
+  
+
 });
 
 function readSample(sampleName) {
