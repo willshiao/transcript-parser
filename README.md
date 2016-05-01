@@ -15,8 +15,8 @@ Parses plaintext speech/debate/radio transcripts into JavaScript objects. It is 
     const TranscriptParser = require('transcript-parser');
     const tp = new TranscriptParser();
     
-    //Do not use readFileSync in production
-    const output = tp.parseOne(fs.readFileSync('transcript.txt', {encoding: 'UTF-8'}));
+    //Do not use fs.readFileSync in production
+    const output = tp.parseOneSync(fs.readFileSync('transcript.txt', {encoding: 'UTF-8'}));
     console.log(output);
 
 
@@ -48,13 +48,13 @@ The constructor for `TranscriptParser` accepts an options argument.
 
 ## Documentation
 
-### .parseOne()
+### .parseOneSync()
 
-The `parseOne()` method parses a string and returns an object representing it.
+The `parseOneSync()` method parses a string and returns an object representing it.
 
 #### Syntax
 
-`tp.parseOne(transcript)`
+`tp.parseOneSync(transcript)`
 
 ##### Parameters
 
@@ -62,15 +62,15 @@ The `parseOne()` method parses a string and returns an object representing it.
     - The transcript, as a `string`.
 
 
-### .resolveAliases()
+### .resolveAliasesSync()
 
-The `resolveAliases()` method resolves all aliases specified in the configuration passed to the `TranscriptParser`'s constructor (see above).
+The `resolveAliasesSync()` method resolves all aliases specified in the configuration passed to the `TranscriptParser`'s constructor (see above).
 
 Renames the names in the `order` list to match the new names in the transcript. Note that there is a signifigant performance penalty, so don't use this method unless you need it.
 
 #### Syntax
 
-`tp.resolveAliases(data)`
+`tp.resolveAliasesSync(data)`
 
 ##### Parameters
 
