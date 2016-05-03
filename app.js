@@ -31,7 +31,6 @@ const TranscriptParser = function (options) {
 };
 
 const proto = TranscriptParser.prototype;
-const tp = this;
 
 /***********************
  * Synchronous parseOne method
@@ -86,60 +85,67 @@ proto.parseOneSync = function(transcript) {
  * Asynchronous parseOne method
  ***********************/
 proto.parseOne = function(transcript, cb) {
+  const hasCallback = (typeof cb !== 'undefined' && cb !== null);  
   //Output object
   const output = {};
   //Object containing the speakers and their lines
   output.speaker = {};
   //List of the speakers, in order
   output.order = [];
-
   //Current speaker
   var speaker = 'none';
 
-  //Remove blank lines
-  return Promise.filter(transcript.split(this.regex.newLine), line => line.length > 0)
-    .then(lines => {
-      if(this.settings.removeActions) {
-        return Promise.map(lines, line => line.split(this.regex.action).join(''))
-      }
-      return Promise.resolve(lines);
-    }).then(lines => {
-      if(this.settings.removeAnnotations) {
-        //Remove annotations
-        return Promise.map(lines, line => line.split(this.regex.annotation).join(''));
-      } else if(this.settings.removeTimestamps) {
-        //Remove timestamps
-        return Promise.map(lines, line => line.split(this.regex.timestamp).join(''));
-      }
-      return Promise.resolve(lines);
-    }).then(lines => {
-      return Promise.each(lines, (line, index) => {
-        if(line.match(this.regex.speaker)) {
-          //Regex match
-          speaker = this.regex.speaker.exec(line)[1];
-          //Remove the speaker from the line
-          line = line.replace(this.regex.speaker, '');
+  //Convert synchronous errors to asynchronous ones
+  try {
+    //Remove blank lines
+    return Promise.filter(transcript.split(this.regex.newLine), line => line.length > 0)
+      .then(lines => {
+        if(this.settings.removeActions) {
+          return Promise.map(lines, line => line.split(this.regex.action).join(''));
         }
-        //If the speaker's key doesn't already exist
-        if(!(speaker in output.speaker) &&
-          //And the speaker is defined or the setting to remove undefined speakers is false
-          (speaker !== 'none' || !this.settings.removeUnknownSpeakers)) {
-          //Set the output's speaker key to a new empty array
-          output.speaker[speaker] = [];
+        return Promise.resolve(lines);
+      }).then(lines => {
+        if(this.settings.removeAnnotations) {
+          //Remove annotations
+          return Promise.map(lines, line => line.split(this.regex.annotation).join(''));
+        } else if(this.settings.removeTimestamps) {
+          //Remove timestamps
+          return Promise.map(lines, line => line.split(this.regex.timestamp).join(''));
         }
-        //If the speaker is defined or the setting to remove undefined speakers is false
-        if(speaker !== 'none' || !this.settings.removeUnknownSpeakers) {
-          //Add the text to the output speaker's key and speaker name to the order array
-          output.speaker[speaker].push(line);
-          output.order.push(speaker);
-        }
+        return Promise.resolve(lines);
+      }).then(lines => {
+        return Promise.each(lines, (line) => {
+          if(line.match(this.regex.speaker)) {
+            //Regex match
+            speaker = this.regex.speaker.exec(line)[1];
+            //Remove the speaker from the line
+            line = line.replace(this.regex.speaker, '');
+          }
+          //If the speaker's key doesn't already exist
+          if(!(speaker in output.speaker) &&
+            //And the speaker is defined or the setting to remove undefined speakers is false
+            (speaker !== 'none' || !this.settings.removeUnknownSpeakers)) {
+            //Set the output's speaker key to a new empty array
+            output.speaker[speaker] = [];
+          }
+          //If the speaker is defined or the setting to remove undefined speakers is false
+          if(speaker !== 'none' || !this.settings.removeUnknownSpeakers) {
+            //Add the text to the output speaker's key and speaker name to the order array
+            output.speaker[speaker].push(line);
+            output.order.push(speaker);
+          }
+        });
+      }).then(() => {
+        if(hasCallback) cb(null, output);
+        return Promise.resolve(output);
+      }).catch(err => {
+        if(hasCallback) cb(err);
+        else return this.reject(err);
       });
-    }).then(() => {
-      if(typeof cb !== 'undefined' && cb !== null) cb(null, output);
-    })
-    .catch(err => {
-      if(typeof cb !== 'undefined' && cb !== null) cb(err)
-    });
+    } catch(err) {
+      if(hasCallback) cb(err);
+      else return Promise.reject(err);
+    }
 };
 
 /***********************
@@ -190,41 +196,56 @@ proto.resolveAliasesSync = function(data) {
  ***********************/
 proto.resolveAliases = function(data, cb) {
   const aliases = this.settings.aliases;
-  if(_.isEmpty(aliases)) return cb(null, data);
-  const speakers = data.speaker;
+  const hasCallback = (typeof cb !== 'undefined' && cb !== null);
 
-  return Promise.all(_.keys(speakers).map(speakerName => {
-    return Promise.all(_.keys(aliases).map(trueName => {
-      return Promise.each(aliases[trueName], regex => {
-        //If the regex matches
-        if(regex.test(speakerName)) {
-          //Add the lines from the regex-matched speaker
-          //to the new speaker if the new speaker exists
-          speakers[trueName] = speakers[trueName] ?
-            _.concat(speakers[trueName], speakers[speakerName]) :
-            //Otherwise, make a new list 
-            speakers[trueName] = speakers[speakerName];
-          //Delete the old key
-          delete speakers[speakerName];
-          return;
-        }
-      })
-    }))
-  })).then(() => {
-    return Promise.each(data.order, (speaker, speakerIndex) => {
-      return Promise.all(_.map(aliases, (alias, trueName) => {
-        return Promise.all(_.map(alias, (regex, regexIndex) => {
-          if(speaker.search(regex) !== -1) {
-            return data.order[speakerIndex] = trueName;
+  if(_.isEmpty(aliases)) {
+    if(hasCallback) cb(null, data);
+    return Promise.resolve(data);
+  }
+
+  //Convert synchronous errors to asynchronous ones
+  try {
+    const speakers = data.speaker;
+
+    return Promise.all(_.keys(speakers).map(speakerName => {
+      return Promise.all(_.keys(aliases).map(trueName => {
+        return Promise.each(aliases[trueName], regex => {
+          //If the regex matches
+          if(regex.test(speakerName)) {
+            //Add the lines from the regex-matched speaker
+            //to the new speaker if the new speaker exists
+            speakers[trueName] = speakers[trueName] ?
+              _.concat(speakers[trueName], speakers[speakerName]) :
+              //Otherwise, make a new list 
+              speakers[trueName] = speakers[speakerName];
+            //Delete the old key
+            delete speakers[speakerName];
+            return;
           }
-        }));
+        });
       }));
+    })).then(() => {
+      return Promise.each(data.order, (speaker, speakerIndex) => {
+        return Promise.all(_.map(aliases, (alias, trueName) => {
+          return Promise.all(_.map(alias, (regex) => {
+            if(speaker.search(regex) !== -1) {
+              data.order[speakerIndex] = trueName;
+              return;
+            }
+          }));
+        }));
+      });
+    }).then(() => {
+      if(hasCallback) cb(null, data);
+      return Promise.resolve(data);
+    }).catch(err => {
+      if(hasCallback) cb(err);
+      else return this.reject(err);
     });
-  }).then(() => {
-    if(typeof cb !== 'undefined' && cb !== null) cb(null, data);
-  }).catch(err => {
-    if(typeof cb !== 'undefined' && cb !== null) cb(err);
-  });
+  } catch(err) {
+    if(hasCallback) cb(err);
+    else return Promise.reject(err);
+  }
 };
 
 module.exports = TranscriptParser;

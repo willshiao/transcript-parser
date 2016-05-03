@@ -4,7 +4,7 @@ const path = require('path');
 const fs = Promise.promisifyAll(require('fs'));
 const TranscriptParser = require('../app.js');
 const chai = require('chai');
-chai.should();
+const should = chai.should();
 
 const TEST_DIR = path.join(__dirname, 'transcripts');
 const EXPECTED_DIR = path.join(__dirname, 'expected');
@@ -178,6 +178,36 @@ describe('TranscriptParser', function() {
         .catch(e => done(e));
     });
 
+    it('should return a promise when callback is not set', function(done) {
+      readSample(1)
+        .bind({})
+        .then(info => {
+          return tp.parseOne(info);
+        })
+        .then(result => {
+          this.result = result;
+          return readExpected(1);
+        }).then(expected => {
+          this.result.should.be.eql(JSON.parse(expected));
+          done();
+        })
+        .catch(e => done(e));
+    });
+
+    it('should handle errors properly', function(done) {
+      tp.parseOne(null).then( output => {
+        should.not.exist(output);
+      }).catch(err => {
+        should.exist(err);
+      }).finally(() => {
+        tp.parseOne(null, function(err, output) {
+          should.exist(err);
+          should.not.exist(output);
+          done();
+        });
+      });
+    });
+
   });
 
   /*
@@ -242,6 +272,26 @@ describe('TranscriptParser', function() {
         .catch(e => done(e));
     });
 
+    it('should return a promise when callback is not set', function(done) {
+      const tp = new TranscriptParser({
+        aliases: { "DONALD TRUMP": [ /.*TRUMP.*/ ] }
+      });
+      readSample(2)
+        .bind({})
+        .then(info => {
+          return tp.parseOne(info);
+        }).then(result => {
+          return tp.resolveAliases(result);
+        }).then(result => {
+          this.result = result;
+          return readExpected(2);
+        }).then(expected => {
+          this.result.should.eql(JSON.parse(expected));
+          done();
+        })
+        .catch(e => done(e));
+    });
+
     it('should return unchanged data if aliases are not set', function(done) {
       const tp = new TranscriptParser({aliases: {}});
       readSample(2)
@@ -250,13 +300,36 @@ describe('TranscriptParser', function() {
           return Promise.fromCallback(cb => tp.parseOne(info, cb));
         }).then(parsed => {
           this.parsed = parsed;
+          //With callback
           return Promise.fromCallback(cb => tp.resolveAliases(parsed, cb));
+        }).then(resolved => {
+          this.parsed.should.equal(resolved);
+          //With Promise
+          return tp.resolveAliases(this.parsed);
         }).then(resolved => {
           this.parsed.should.equal(resolved);
           done();
         })
         .catch(e => done(e));
     });
+
+    it('should handle errors properly', function(done) {
+      const tp = new TranscriptParser({
+        aliases: { "DONALD TRUMP": [ /.*TRUMP.*/ ] }
+      });
+      tp.resolveAliases(null).then( output => {
+        should.not.exist(output);
+      }).catch(err => {
+        should.exist(err);
+      }).finally(() => {
+        tp.resolveAliases(null, function(err, output) {
+          should.exist(err);
+          should.not.exist(output);
+          done();
+        })
+      });
+    });
+
   });
 
 });
