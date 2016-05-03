@@ -5,7 +5,8 @@
   "main": "app.js",
   "scripts": {
     "test": "node ./node_modules/mocha/bin/mocha",
-    "travis-test": "node ./node_modules/istanbul/lib/cli.js cover node_modules/mocha/bin/_mocha"
+    "travis-test": "node ./node_modules/istanbul/lib/cli.js cover node_modules/mocha/bin/_mocha",
+    "benchmark": "node ./benchmark/benchmark.js"
   },
   "repository": {
     "type": "git",
@@ -29,6 +30,7 @@
     "chai": "^3.5.0",
     "chai-as-promised": "^5.3.0",
     "coveralls": "^2.11.9",
+    "heapdump": "^0.3.7",
     "istanbul": "^0.4.3",
     "mocha": "^2.4.5"
   },

@@ -135,9 +135,11 @@ proto.parseOne = function(transcript, cb) {
         }
       });
     }).then(() => {
-      cb(null, output);
+      if(typeof cb !== 'undefined' && cb !== null) cb(null, output);
     })
-    .catch(err => cb(err));
+    .catch(err => {
+      if(typeof cb !== 'undefined' && cb !== null) cb(err)
+    });
 };
 
 /***********************
@@ -219,8 +221,10 @@ proto.resolveAliases = function(data, cb) {
       }));
     });
   }).then(() => {
-    cb(null, data);
-  }).catch(err => cb(err));
+    if(typeof cb !== 'undefined' && cb !== null) cb(null, data);
+  }).catch(err => {
+    if(typeof cb !== 'undefined' && cb !== null) cb(err);
+  });
 };
 
 module.exports = TranscriptParser;
