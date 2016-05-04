@@ -1,3 +1,8 @@
+'use strict';
+
+/***********************
+ * Dependencies
+ ***********************/
 const Promise = require('bluebird');
 const fs = Promise.promisifyAll(require('fs'));
 const _ = require('lodash');
@@ -10,6 +15,9 @@ const firstTranscript = readTranscriptSync('1');
 const numTests = 5;
 
 
+/***********************
+ * Benchmarks
+ ***********************/
 console.log('Sync Parse #1:', timeFunction(() => {
   tp.parseOneSync(firstTranscript);
 }));
@@ -38,7 +46,9 @@ timePromise(() => {
 }).catch(e => console.error(e));
 
 
-
+/***********************
+ * Functions
+ ***********************/
 function parseLongPromise() {
   const q = new Array(numTests);
   for(var i = 0; i < numTests; i++) {

@@ -1,9 +1,16 @@
-"use strict";
+'use strict';
+
+/***********************
+ * Test dependencies
+ ***********************/
 const TranscriptParser = require('../app.js');
 const chai = require('chai');
 chai.should();
 
 
+/***********************
+ * Tests
+ ***********************/
 describe('TranscriptParser', function() {
   const transcriptParser = new TranscriptParser();
   describe('.regex', function() {
