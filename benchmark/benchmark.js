@@ -7,6 +7,7 @@ const Promise = require('bluebird');
 const fs = Promise.promisifyAll(require('fs'));
 const _ = require('lodash');
 const TranscriptParser = require('../app.js');
+const Readable = require('stream').Readable;
 
 const tp = new TranscriptParser();
 
@@ -14,7 +15,7 @@ const longTranscript = readTranscriptSync('long');
 const firstTranscript = readTranscriptSync('1');
 const numTests = 5;
 
-
+var s = new Readable();
 /***********************
  * Benchmarks
  ***********************/
@@ -45,6 +46,14 @@ timePromise(() => {
   console.log('Async Parse #3:', msg);
 }).catch(e => console.error(e));
 
+console.log('Starting stream parse');
+s.push(firstTranscript, 'utf8');
+s.push(null);
+timeAsyncFunction(cb => {
+  tp.parseStream(s, cb);
+}, function(err, res) {
+  console.log('Stream Parse #1:', res);
+})
 
 /***********************
  * Functions
@@ -84,9 +93,9 @@ function timeFunction(func) {
 }
 
 function readTranscript(name) {
-  return fs.readFileAsync(__dirname + '/transcripts/'+name+'.txt', {encoding: 'UTF-8'});
+  return fs.readFileAsync(__dirname + '/transcripts/'+name+'.txt', {encoding: 'utf8'});
 }
 
 function readTranscriptSync(name) {
-  return fs.readFileSync(__dirname + '/transcripts/'+name+'.txt', {encoding: 'UTF-8'});
+  return fs.readFileSync(__dirname + '/transcripts/'+name+'.txt', {encoding: 'utf8'});
 }

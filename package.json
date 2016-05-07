@@ -35,6 +35,7 @@
   },
   "dependencies": {
     "bluebird": "^3.3.4",
+    "byline": "^4.2.1",
     "lodash": "^4.9.0"
   }
 }

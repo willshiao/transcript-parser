@@ -18,6 +18,26 @@ const EXPECTED_DIR = path.join(__dirname, 'expected');
  ***********************/
 describe('TranscriptParser', function() {
 
+  describe('#parseStream()', function() {
+    const tp = new TranscriptParser();
+
+    it('should parse a transcript correctly', function(done) {
+      readSample(1)
+        .bind({})
+        .then(info => {
+          var stream = fs.createReadStream(path.join(TEST_DIR, '1.txt'), 'utf-8');
+          return Promise.fromCallback(cb => tp.parseStream(stream, cb));
+        }).then(result => {
+          this.result = result;
+          return readExpected(1);
+        }).then(expected => {
+          this.result.should.be.eql(JSON.parse(expected));
+          done();
+        })
+        .catch(e => done(e));
+    });
+  });
+
   /*
    * For the synchronous parseOne method
    *
@@ -57,7 +77,7 @@ describe('TranscriptParser', function() {
 
     it('should be able to remove timestamps without removing annotations', function() {
       const parser = new TranscriptParser({removeAnnotations: false, removeTimestamps: true});
-      var result = parser.parseOneSync('[20:20:34] BERMAN: [2:1:41] The [first] name...');
+      var result = parser.parseOneSync('[20:20:34] BERMAN [2:1:41] : The [first] name...');
       result.speaker.should.eql({
         'BERMAN': [
           'The [first] name...'
@@ -141,7 +161,7 @@ describe('TranscriptParser', function() {
 
     it('should be able to remove timestamps without removing annotations', function(done) {
       const parser = new TranscriptParser({removeAnnotations: false, removeTimestamps: true});
-      parser.parseOne('[20:20:34] BERMAN: [2:1:41] The [first] name...',
+      parser.parseOne('[20:20:34] BERMAN: The [first] name...',
         (err, result) => {
           if(err) return done(err);
           result.speaker.should.eql({

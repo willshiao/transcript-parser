@@ -57,7 +57,7 @@ describe('TranscriptParser', function() {
     describe('.timestamp', function() {
       it('should be able to remove timestamps', function() {
         '[20:20:34] BERMAN: [2:1:41] The...'.split(regex.timestamp).join('')
-          .should.equal('BERMAN: The...');
+          .should.equal('BERMAN:The...');
       });
     });
 
