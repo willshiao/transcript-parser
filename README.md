@@ -15,9 +15,25 @@ Parses plaintext speech/debate/radio transcripts into JavaScript objects. It is 
     const TranscriptParser = require('transcript-parser');
     const tp = new TranscriptParser();
     
-    //Do not use fs.readFileSync in production
-    const output = tp.parseOneSync(fs.readFileSync('transcript.txt', {encoding: 'UTF-8'}));
-    console.log(output);
+    //Synchronous example
+    const parsed = tp.parseOneSync(fs.readFileSync('transcript.txt', {encoding: 'UTF-8'}));
+    console.log(parsed);
+    
+    //Asyncronous example
+    fs.readFile('transcript.txt', (err, data) => {
+      if(err) return console.error('Error:', err);
+      tp.parseOne(data, (err, parsed => {
+        if(err) return console.error('Error:', err);
+        console.log(parsed);
+      }));
+    });
+    
+    //Stream example
+    const stream = fs.createReadStream('transcript.txt', 'utf8');
+    tp.parseStream(stream, (err, parsed) => {
+      if(err) return console.error('Error:', err);
+      console.log(parsed);
+    });
 
 
 ## Config
@@ -48,6 +64,24 @@ The constructor for `TranscriptParser` accepts an options argument.
 
 ## Documentation
 
+### .parseStream()
+
+The `parseStream()` method parses a [`Stream`](https://nodejs.org/api/stream.html) and returns an object representing it.
+
+This is the preferred method for parsing streams asynchronously as it doesn't have to load the entire transcript into memory (unlike `parseOne()`).
+
+#### Syntax
+
+`tp.parseOneSync(stream, callback)`
+
+##### Parameters
+
+- `stream`
+    + The `Readable` stream to read.
+- `callback(err, data)`
+    + A callback to be executed on function completion or error.
+
+
 ### .parseOneSync()
 
 The `parseOneSync()` method parses a string and returns an object representing it.
@@ -75,7 +109,7 @@ The `parseOne()` method parses a string and returns an object representing it.
 - `transcript`
     + The transcript, as a `string`.
 - `callback(err, data)`
-    + A callback to be exectuted on function completion.
+    + A callback to be exectuted on function completion or error.
 
 
 ### .resolveAliasesSync()
@@ -109,5 +143,5 @@ Renames the names in the `order` list to match the new names in the transcript. 
 - `data`
     + The transcript object after being parsed.
 - `callback(err, resolved)`
-    + A callback to be executed on function completion.
+    + A callback to be executed on function completion or error.
 

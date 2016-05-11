@@ -25,7 +25,7 @@ describe('TranscriptParser', function() {
       readSample(1)
         .bind({})
         .then(info => {
-          var stream = fs.createReadStream(path.join(TEST_DIR, '1.txt'), 'utf-8');
+          var stream = fs.createReadStream(path.join(TEST_DIR, '1.txt'), 'utf8');
           return Promise.fromCallback(cb => tp.parseStream(stream, cb));
         }).then(result => {
           this.result = result;
@@ -359,9 +359,9 @@ describe('TranscriptParser', function() {
 });
 
 function readSample(sampleName) {
-  return fs.readFileAsync(path.join(TEST_DIR, sampleName+'.txt'), {encoding: 'UTF-8'});
+  return fs.readFileAsync(path.join(TEST_DIR, sampleName+'.txt'), {encoding: 'utf8'});
 }
 
 function readExpected(expectedName) {
-  return fs.readFileAsync(path.join(EXPECTED_DIR, expectedName+'.txt'), {encoding: 'UTF-8'});
+  return fs.readFileAsync(path.join(EXPECTED_DIR, expectedName+'.txt'), {encoding: 'utf8'});
 }
