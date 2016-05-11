@@ -44,16 +44,13 @@ timePromise(() => {
   return timePromise(() => {return parseLongPromise()});
 }).then(msg => {
   console.log('Async Parse #3:', msg);
-}).catch(e => console.error(e));
-
-console.log('Starting stream parse');
-s.push(firstTranscript, 'utf8');
-s.push(null);
-timeAsyncFunction(cb => {
-  tp.parseStream(s, cb);
-}, function(err, res) {
-  console.log('Stream Parse #1:', res);
-})
+  s.push(firstTranscript, 'utf8');
+  s.push(null);
+  console.log('Starting stream parse');
+  return timePromise(() => Promise.fromCallback(cb => tp.parseStream(s, cb)) );
+}).then(msg => {
+  console.log('Stream Parse #1:', msg);
+}).catch(e => console.error(e.stack));
 
 /***********************
  * Functions
