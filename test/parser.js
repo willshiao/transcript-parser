@@ -242,7 +242,7 @@ describe('TranscriptParser', function() {
 
     it('should resolve aliases correctly', function(done) {
       const tp = new TranscriptParser({
-        aliases: { "DONALD TRUMP": [ /.*TRUMP.*/ ] }
+        aliases: { "TRUMP": [ /.*TRUMP.*/ ] }
       });
       readSample(2)
         .bind({})
@@ -278,7 +278,7 @@ describe('TranscriptParser', function() {
 
     it('should resolve aliases correctly', function(done) {
       const tp = new TranscriptParser({
-        aliases: { "DONALD TRUMP": [ /.*TRUMP.*/ ] }
+        aliases: { "TRUMP": [ /.*TRUMP.*/ ] }
       });
       readSample(2)
         .bind({})
@@ -298,7 +298,7 @@ describe('TranscriptParser', function() {
 
     it('should return a promise when callback is not set', function(done) {
       const tp = new TranscriptParser({
-        aliases: { "DONALD TRUMP": [ /.*TRUMP.*/ ] }
+        aliases: { "TRUMP": [ /.*TRUMP.*/ ] }
       });
       readSample(2)
         .bind({})
@@ -339,7 +339,7 @@ describe('TranscriptParser', function() {
 
     it('should handle errors properly', function(done) {
       const tp = new TranscriptParser({
-        aliases: { "DONALD TRUMP": [ /.*TRUMP.*/ ] }
+        aliases: { "TRUMP": [ /.*TRUMP.*/ ] }
       });
       tp.resolveAliases(null).then( output => {
         should.not.exist(output);
