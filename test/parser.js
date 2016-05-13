@@ -9,6 +9,7 @@ const fs = Promise.promisifyAll(require('fs'));
 const TranscriptParser = require('../app.js');
 const chai = require('chai');
 const should = chai.should();
+const Readable = require('stream').Readable;
 
 const TEST_DIR = path.join(__dirname, 'transcripts');
 const EXPECTED_DIR = path.join(__dirname, 'expected');
@@ -35,6 +36,24 @@ describe('TranscriptParser', function() {
           done();
         })
         .catch(e => done(e));
+    });
+
+    it('should respect the blacklist setting', function(done) {
+      const rs = new Readable;
+      const parser = new TranscriptParser({blacklist: [ 'B' ]});
+      const testStr = 'A: Blah blah blah\nB: This should be\nignored\nA: Blah blah';
+      rs.push(testStr);
+      rs.push(null);
+      Promise.fromCallback(cb => parser.parseStream(rs, cb))
+        .then(parsed => {
+          parsed.should.eql({
+            speaker: {
+              A: ['Blah blah blah', 'Blah blah'],
+            },
+            order: ['A', 'A']
+          });
+          done();
+        });
     });
   });
 
@@ -105,6 +124,17 @@ describe('TranscriptParser', function() {
           done();
         })
         .catch(e => done(e));
+    });
+
+    it('should respect the blacklist setting', function() {
+      const parser = new TranscriptParser({blacklist: [ 'B' ]});
+      const testStr = 'A: Blah blah blah\nB: This should be\nignored\nA: Blah blah';
+      parser.parseOneSync(testStr).should.eql({
+        speaker: {
+          A: ['Blah blah blah', 'Blah blah'],
+        },
+        order: ['A', 'A']
+      });
     });
 
   });
@@ -229,6 +259,20 @@ describe('TranscriptParser', function() {
           should.not.exist(output);
           done();
         });
+      });
+    });
+
+    it('should respect the blacklist setting', function(done) {
+      const parser = new TranscriptParser({blacklist: [ 'B' ]});
+      const testStr = 'A: Blah blah blah\nB: This should be\nignored\nA: Blah blah';
+      parser.parseOne(testStr).then(parsed => {
+        parsed.should.eql({
+          speaker: {
+            A: ['Blah blah blah', 'Blah blah'],
+          },
+          order: ['A', 'A']
+        });
+        done();
       });
     });
 
