@@ -286,7 +286,10 @@ describe('TranscriptParser', function() {
 
     it('should resolve aliases correctly', function(done) {
       const tp = new TranscriptParser({
-        aliases: { "TRUMP": [ /.*TRUMP.*/ ] }
+        aliases: {
+          'TRUMP': [ /.*TRUMP.*/ ],
+          'FREDERICK RYAN JR.': [ /FREDERICK RYAN JR\.[A-Z,\ ]*/ ]
+        }
       });
       readSample(2)
         .bind({})
@@ -312,6 +315,7 @@ describe('TranscriptParser', function() {
         })
         .catch(e => done(e));
     });
+
   });
 
   /*
@@ -322,7 +326,10 @@ describe('TranscriptParser', function() {
 
     it('should resolve aliases correctly', function(done) {
       const tp = new TranscriptParser({
-        aliases: { "TRUMP": [ /.*TRUMP.*/ ] }
+        aliases: {
+          'TRUMP': [ /.*TRUMP.*/ ],
+          'FREDERICK RYAN JR.': [ /FREDERICK RYAN JR\.[A-Z,\ ]*/ ]
+      }
       });
       readSample(2)
         .bind({})
@@ -342,7 +349,10 @@ describe('TranscriptParser', function() {
 
     it('should return a promise when callback is not set', function(done) {
       const tp = new TranscriptParser({
-        aliases: { "TRUMP": [ /.*TRUMP.*/ ] }
+        aliases: {
+          'TRUMP': [ /.*TRUMP.*/ ],
+          'FREDERICK RYAN JR.': [ /FREDERICK RYAN JR\.[A-Z,\ ]*/ ]
+      }
       });
       readSample(2)
         .bind({})

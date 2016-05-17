@@ -46,10 +46,15 @@ timePromise(() => {
   console.log('Async Parse #3:', msg);
   s.push(firstTranscript, 'utf8');
   s.push(null);
-  console.log('Starting stream parse');
   return timePromise(() => Promise.fromCallback(cb => tp.parseStream(s, cb)) );
 }).then(msg => {
   console.log('Stream Parse #1:', msg);
+  s = new Readable();
+  s.push(longTranscript, 'utf8');
+  s.push(null);
+  return timePromise(() => Promise.fromCallback(cb => tp.parseStream(s, cb)));
+}).then(msg => {
+  console.log('Stream Parse #2:', msg);
 }).catch(e => console.error(e.stack));
 
 /***********************
