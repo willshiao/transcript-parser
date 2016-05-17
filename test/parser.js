@@ -39,7 +39,7 @@ describe('TranscriptParser', function() {
     });
 
     it('should respect the blacklist setting', function(done) {
-      const rs = new Readable;
+      const rs = new Readable();
       const parser = new TranscriptParser({blacklist: [ 'B' ]});
       const testStr = 'A: Blah blah blah\nB: This should be\nignored\nA: Blah blah';
       rs.push(testStr);
@@ -55,6 +55,24 @@ describe('TranscriptParser', function() {
           done();
         });
     });
+
+    it('should respect the remove unknown speakers setting', function(done) {
+      const rs = new Readable();
+      const parser = new TranscriptParser({removeUnknownSpeakers: true});
+      const testStr = 'The quick [brown] fox jumps over the (lazy) dog.';
+      rs.push(testStr);
+      rs.push(null);
+      parser.parseStream(rs,
+        (err, result) => {
+          if(err) return done(err);
+          result.should.eql({
+            speaker: {},
+            order: []
+          });
+          done();
+      });
+    });
+
   });
 
   /*
