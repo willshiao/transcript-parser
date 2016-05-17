@@ -73,6 +73,55 @@ describe('TranscriptParser', function() {
       });
     });
 
+    it('should respect the removeActions setting', function() {
+      const rs = new Readable();
+      const parser = new TranscriptParser({removeActions: false});
+      const testStr = 'PERSON A: Hello, (PAUSES) (DRINKS WATER) my name is Bob.(APPLAUSE)';
+      rs.push(testStr);
+      rs.push(null);
+      parser.parseStream(rs, (err, result) => {
+        if(err) return done(err);
+        result.should.eql({
+          'PERSON A': [
+            'Hello, (PAUSES) (DRINKS WATER) my name is Bob.(APPLAUSE)'
+          ]
+        });
+        done();
+      });
+    });
+
+    it('should respect the removeTimestamps setting', function() {
+      const parser = new TranscriptParser({removeAnnotations: false, removeTimestamps: false});
+      const rs = new Readable();
+      const testStr = '[20:20:34] BERMAN: [2:1:41] The...';
+      rs.push(testStr);
+      rs.push(null);
+      parser.parseStream(rs, (err, result) => {
+        if(err) return done(err);
+        result.should.eql({
+          '[20:20:34] BERMAN': [
+            '[2:1:41] The...'
+          ]
+        });
+        done();
+      });
+    });
+
+    it('should be able to remove timestamps without removing annotations', function() {
+      const parser = new TranscriptParser({removeAnnotations: false, removeTimestamps: true});
+      const rs = new Readable();
+      const testStr = '[20:20:34] BERMAN [2:1:41] : The [first] name...';
+      rs.push(testStr);
+      rs.push(null);
+      parser.parseStream(rs, (err, result) => {
+        if(err) return done(err);
+        result.should.eql({
+          'BERMAN': [ 'The [first] name...' ]
+        });
+        done();
+      });
+    });
+
   });
 
   /*
