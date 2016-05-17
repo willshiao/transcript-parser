@@ -82,9 +82,7 @@ describe('TranscriptParser', function() {
       parser.parseStream(rs, (err, result) => {
         if(err) return done(err);
         result.should.eql({
-          'PERSON A': [
-            'Hello, (PAUSES) (DRINKS WATER) my name is Bob.(APPLAUSE)'
-          ]
+          'PERSON A': ['Hello, (PAUSES) (DRINKS WATER) my name is Bob.(APPLAUSE)']
         });
         done();
       });
@@ -98,11 +96,7 @@ describe('TranscriptParser', function() {
       rs.push(null);
       parser.parseStream(rs, (err, result) => {
         if(err) return done(err);
-        result.should.eql({
-          '[20:20:34] BERMAN': [
-            '[2:1:41] The...'
-          ]
-        });
+        result.should.eql({'[20:20:34] BERMAN': [ '[2:1:41] The...' ]});
         done();
       });
     });
@@ -135,9 +129,7 @@ describe('TranscriptParser', function() {
       const parser = new TranscriptParser();
       var result = parser.parseOneSync('PERSON A: Hello, (PAUSES) (DRINKS WATER) my name is Bob.(APPLAUSE)');
       result.speaker.should.eql({
-        'PERSON A': [
-          'Hello, my name is Bob.'
-        ]
+        'PERSON A': [ 'Hello, my name is Bob.' ]
       });
     });
 
@@ -145,30 +137,20 @@ describe('TranscriptParser', function() {
       const parser = new TranscriptParser({removeActions: false});
       var result = parser.parseOneSync('PERSON A: Hello, (PAUSES) (DRINKS WATER) my name is Bob.(APPLAUSE)');
       result.speaker.should.eql({
-        'PERSON A': [
-          'Hello, (PAUSES) (DRINKS WATER) my name is Bob.(APPLAUSE)'
-        ]
+        'PERSON A': [ 'Hello, (PAUSES) (DRINKS WATER) my name is Bob.(APPLAUSE)' ]
       });
     });
 
     it('should respect the removeTimestamps setting', function() {
       const parser = new TranscriptParser({removeAnnotations: false, removeTimestamps: false});
       var result = parser.parseOneSync('[20:20:34] BERMAN: [2:1:41] The...');
-      result.speaker.should.eql({
-        '[20:20:34] BERMAN': [
-          '[2:1:41] The...'
-        ]
-      });
+      result.speaker.should.eql({'[20:20:34] BERMAN': ['[2:1:41] The...']});
     });
 
     it('should be able to remove timestamps without removing annotations', function() {
       const parser = new TranscriptParser({removeAnnotations: false, removeTimestamps: true});
       var result = parser.parseOneSync('[20:20:34] BERMAN [2:1:41] : The [first] name...');
-      result.speaker.should.eql({
-        'BERMAN': [
-          'The [first] name...'
-        ]
-      });
+      result.speaker.should.eql({'BERMAN': ['The [first] name...']});
     });
 
     it('should respect the remove unknown speakers setting', function() {
@@ -219,11 +201,7 @@ describe('TranscriptParser', function() {
       parser.parseOne('PERSON A: Hello, (PAUSES) (DRINKS WATER) my name is Bob.(APPLAUSE)',
       function(err, result) {
         if(err) return done(err);
-        result.speaker.should.eql({
-          'PERSON A': [
-            'Hello, my name is Bob.'
-          ]
-        });
+        result.speaker.should.eql({'PERSON A': [ 'Hello, my name is Bob.' ]});
         done();
       });
     });
@@ -234,9 +212,7 @@ describe('TranscriptParser', function() {
         (err, result) => {
           if(err) return done(err);
           result.speaker.should.eql({
-            'PERSON A': [
-              'Hello, (PAUSES) (DRINKS WATER) my name is Bob.(APPLAUSE)'
-            ]
+            'PERSON A': [ 'Hello, (PAUSES) (DRINKS WATER) my name is Bob.(APPLAUSE)' ]
           });
           done();
         });
@@ -248,9 +224,7 @@ describe('TranscriptParser', function() {
         (err, result) => {
           if(err) return done(err);
           result.speaker.should.eql({
-            '[20:20:34] BERMAN': [
-              '[2:1:41] The...'
-            ]
+            '[20:20:34] BERMAN': [ '[2:1:41] The...' ]
           });
           done();
       });
