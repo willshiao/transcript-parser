@@ -19,7 +19,7 @@ Parses plaintext speech/debate/radio transcripts into JavaScript objects. It is 
     const parsed = tp.parseOneSync(fs.readFileSync('transcript.txt', {encoding: 'UTF-8'}));
     console.log(parsed);
     
-    //Asyncronous example
+    //Asynchronous example
     fs.readFile('transcript.txt', (err, data) => {
       if(err) return console.error('Error:', err);
       tp.parseOne(data, (err, parsed => {
@@ -55,6 +55,10 @@ The constructor for `TranscriptParser` accepts an options argument.
 - `removeUnknownSpeakers`
     + default: `false`
     + Specifies if the parser should remove lines that have no associated speaker.
+    + If true, lines that have no associated speaker will be stored under the key `none`.
+- `blacklist`
+    + default: `[]`
+    + A list of speakers (as strings) that the parser should ignore.
 - `aliases`
     + default: `{}`
     + A object with the real name as the key and an `Array` of the aliases' regular expressions as the value.
