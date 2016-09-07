@@ -25,7 +25,7 @@ Tested for Node.js versions >= 4.4.6
     //Asynchronous example
     fs.readFile('transcript.txt', (err, data) => {
       if(err) return console.error('Error:', err);
-      tp.parseOne(data, (err, parsed => {
+      tp.parseOne(data, (err, parsed) => {
         if(err) return console.error('Error:', err);
         console.log(parsed);
       }));
