@@ -350,6 +350,19 @@ describe('TranscriptParser', function() {
         .catch(e => done(e));
     });
 
+    it('should not change the input data', function(done) {
+      const tp = new TranscriptParser({aliases: {}});
+      readSample(2)
+        .then(info => {
+          const parsed = tp.parseOneSync(info);
+          const old = JSON.parse(JSON.stringify(parsed));
+          tp.resolveAliasesSync(parsed);
+          parsed.should.eql(old);
+          done();
+        })
+        .catch(e => done(e));
+    });
+
     it('should return unchanged data if aliases are not set', function(done) {
       const tp = new TranscriptParser({aliases: {}});
       readSample(2)
@@ -388,6 +401,21 @@ describe('TranscriptParser', function() {
           return readExpected(2);
         }).then(expected => {
           this.result.should.eql(JSON.parse(expected));
+          done();
+        })
+        .catch(e => done(e));
+    });
+
+    it('should not change the input data', function(done) {
+      const tp = new TranscriptParser({aliases: {}});
+      readSample(2)
+        .bind({})
+        .then(info => {
+          this.parsed = tp.parseOneSync(info);
+          this.old = JSON.parse(JSON.stringify(this.parsed));
+          return Promise.fromCallback(cb => tp.resolveAliases(this.parsed, cb));
+        }).then(() => {
+          this.parsed.should.eql(this.old);
           done();
         })
         .catch(e => done(e));
