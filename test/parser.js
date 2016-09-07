@@ -14,6 +14,7 @@ const Readable = require('stream').Readable;
 const TEST_DIR = path.join(__dirname, 'transcripts');
 const EXPECTED_DIR = path.join(__dirname, 'expected');
 
+
 /***********************
  * Tests
  ***********************/
@@ -70,10 +71,11 @@ describe('TranscriptParser', function() {
             order: []
           });
           done();
-      });
+        }
+      );
     });
 
-    it('should respect the removeActions setting', function() {
+    it('should respect the removeActions setting', function(done) {
       const rs = new Readable();
       const parser = new TranscriptParser({removeActions: false});
       const testStr = 'PERSON A: Hello, (PAUSES) (DRINKS WATER) my name is Bob.(APPLAUSE)';
@@ -88,7 +90,7 @@ describe('TranscriptParser', function() {
       });
     });
 
-    it('should respect the removeTimestamps setting', function() {
+    it('should respect the removeTimestamps setting', function(done) {
       const parser = new TranscriptParser({removeAnnotations: false, removeTimestamps: false});
       const rs = new Readable();
       const testStr = '[20:20:34] BERMAN: [2:1:41] The...';
@@ -101,7 +103,7 @@ describe('TranscriptParser', function() {
       });
     });
 
-    it('should be able to remove timestamps without removing annotations', function() {
+    it('should be able to remove timestamps without removing annotations', function(done) {
       const parser = new TranscriptParser({removeAnnotations: false, removeTimestamps: true});
       const rs = new Readable();
       const testStr = '[20:20:34] BERMAN [2:1:41] : The [first] name...';
@@ -122,7 +124,7 @@ describe('TranscriptParser', function() {
    * For the synchronous parseOne method
    *
    */
-  describe('#parseOneSync()', function(){
+  describe('#parseOneSync()', function() {
     const tp = new TranscriptParser();
 
     it('should remove actions by default', function() {
@@ -193,7 +195,7 @@ describe('TranscriptParser', function() {
    * For the asynchronous parseOne method
    *
    */
-  describe('#parseOne()', function(){
+  describe('#parseOne()', function() {
     const tp = new TranscriptParser();
 
     it('should remove actions by default', function(done) {
@@ -252,7 +254,8 @@ describe('TranscriptParser', function() {
             order: []
           });
           done();
-      });
+        }
+      );
     });
 
     it('should parse a transcript correctly', function(done) {
@@ -290,7 +293,7 @@ describe('TranscriptParser', function() {
     });
 
     it('should handle errors properly', function(done) {
-      tp.parseOne(null).then( output => {
+      tp.parseOne(null).then(output => {
         should.not.exist(output);
       }).catch(err => {
         should.exist(err);
@@ -323,7 +326,7 @@ describe('TranscriptParser', function() {
    * For the synchronous resolveAliases method
    *
    */
-  describe('#resolveAliasesSync()', function () {
+  describe('#resolveAliasesSync()', function() {
 
     it('should resolve aliases correctly', function(done) {
       const tp = new TranscriptParser({
@@ -363,14 +366,14 @@ describe('TranscriptParser', function() {
    * For the asynchronous resolveAliases method
    *
    */
-  describe('#resolveAliases()', function () {
+  describe('#resolveAliases()', function() {
 
     it('should resolve aliases correctly', function(done) {
       const tp = new TranscriptParser({
         aliases: {
           'TRUMP': [ /.*TRUMP.*/ ],
           'FREDERICK RYAN JR.': [ /FREDERICK RYAN JR\.[A-Z,\ ]*/ ]
-      }
+        }
       });
       readSample(2)
         .bind({})
@@ -393,7 +396,7 @@ describe('TranscriptParser', function() {
         aliases: {
           'TRUMP': [ /.*TRUMP.*/ ],
           'FREDERICK RYAN JR.': [ /FREDERICK RYAN JR\.[A-Z,\ ]*/ ]
-      }
+        }
       });
       readSample(2)
         .bind({})
@@ -434,9 +437,9 @@ describe('TranscriptParser', function() {
 
     it('should handle errors properly', function(done) {
       const tp = new TranscriptParser({
-        aliases: { "TRUMP": [ /.*TRUMP.*/ ] }
+        aliases: { 'TRUMP': [ /.*TRUMP.*/ ] }
       });
-      tp.resolveAliases(null).then( output => {
+      tp.resolveAliases(null).then(output => {
         should.not.exist(output);
       }).catch(err => {
         should.exist(err);
@@ -454,9 +457,9 @@ describe('TranscriptParser', function() {
 });
 
 function readSample(sampleName) {
-  return fs.readFileAsync(path.join(TEST_DIR, sampleName+'.txt'), {encoding: 'utf8'});
+  return fs.readFileAsync(path.join(TEST_DIR, `${sampleName}.txt`), {encoding: 'utf8'});
 }
 
 function readExpected(expectedName) {
-  return fs.readFileAsync(path.join(EXPECTED_DIR, expectedName+'.txt'), {encoding: 'utf8'});
+  return fs.readFileAsync(path.join(EXPECTED_DIR, `${expectedName}.txt`), {encoding: 'utf8'});
 }

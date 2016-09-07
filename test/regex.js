@@ -19,14 +19,14 @@ describe('TranscriptParser', function() {
     describe('.newLine', function() {
       it('should split newlines', function() {
         const testStr = 'a\nb\r\nc';
-        testStr.split(regex.newLine).should.eql(['a','b','c']);
+        testStr.split(regex.newLine).should.eql(['a', 'b', 'c']);
       });
     });
 
     describe('.action', function() {
       it('should split actions', function() {
         const testStr = 'The (LOUD APPLAUSE) chicken (SILENCE) crossed (LAUGHTER)';
-        testStr.split(regex.action).should.eql(['The ','chicken ','crossed ','']);
+        testStr.split(regex.action).should.eql(['The ', 'chicken ', 'crossed ', '']);
       });
     });
 
