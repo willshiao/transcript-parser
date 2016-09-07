@@ -7,7 +7,9 @@ transcript-parser
 
 Parses plaintext speech/debate/radio transcripts into JavaScript objects. It is still in early development. Pull requests are welcome.
 
-Tested for Node.js versions >= 4.4.6
+Tests can be run with `npm test` and a benchmark can be run with `npm run benchmark`. For a full coverage report using [Istanbul](https://github.com/gotwarlost/istanbul), run `npm run travis-test`.
+
+Tested for Node.js >= v4.4.6
 
 ## Usage
 
