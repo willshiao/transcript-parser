@@ -77,7 +77,7 @@ suite
   .on('complete', function() {
     this.forEach(printStats);
   })
-  .run();
+  .run({async: true});
 
 
 /***********************
