@@ -13,12 +13,13 @@ Tested for Node.js versions >= 4.4.6
 
 `npm install transcript-parser`
 
+    'use strict';
     const fs = require('fs');
     const TranscriptParser = require('transcript-parser');
     const tp = new TranscriptParser();
     
     //Synchronous example
-    const parsed = tp.parseOneSync(fs.readFileSync('transcript.txt', {encoding: 'UTF-8'}));
+    const parsed = tp.parseOneSync(fs.readFileSync('transcript.txt', 'utf8'));
     console.log(parsed);
     
     //Asynchronous example
