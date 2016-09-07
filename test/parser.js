@@ -57,7 +57,7 @@ describe('TranscriptParser', function() {
         });
     });
 
-    it('should respect the remove unknown speakers setting', function(done) {
+    it('should respect the removeUnknownSpeakers setting', function(done) {
       const rs = new Readable();
       const parser = new TranscriptParser({removeUnknownSpeakers: true});
       const testStr = 'The quick [brown] fox jumps over the (lazy) dog.';
@@ -83,7 +83,7 @@ describe('TranscriptParser', function() {
       rs.push(null);
       parser.parseStream(rs, (err, result) => {
         if(err) return done(err);
-        result.should.eql({
+        result.speaker.should.eql({
           'PERSON A': ['Hello, (PAUSES) (DRINKS WATER) my name is Bob.(APPLAUSE)']
         });
         done();
@@ -98,7 +98,7 @@ describe('TranscriptParser', function() {
       rs.push(null);
       parser.parseStream(rs, (err, result) => {
         if(err) return done(err);
-        result.should.eql({'[20:20:34] BERMAN': [ '[2:1:41] The...' ]});
+        result.speaker.should.eql({'[20:20:34] BERMAN': [ '[2:1:41] The...' ]});
         done();
       });
     });
@@ -111,7 +111,7 @@ describe('TranscriptParser', function() {
       rs.push(null);
       parser.parseStream(rs, (err, result) => {
         if(err) return done(err);
-        result.should.eql({
+        result.speaker.should.eql({
           'BERMAN': [ 'The [first] name...' ]
         });
         done();
@@ -155,7 +155,7 @@ describe('TranscriptParser', function() {
       result.speaker.should.eql({'BERMAN': ['The [first] name...']});
     });
 
-    it('should respect the remove unknown speakers setting', function() {
+    it('should respect the removeUnknownSpeakers setting', function() {
       const parser = new TranscriptParser({removeUnknownSpeakers: true});
       var result = parser.parseOneSync('The quick [brown] fox jumps over the (lazy) dog.');
       result.should.eql({
@@ -229,7 +229,8 @@ describe('TranscriptParser', function() {
             '[20:20:34] BERMAN': [ '[2:1:41] The...' ]
           });
           done();
-      });
+        }
+      );
     });
 
     it('should be able to remove timestamps without removing annotations', function(done) {
@@ -241,10 +242,11 @@ describe('TranscriptParser', function() {
             'BERMAN': ['The [first] name...']
           });
           done();
-      });
+        }
+      );
     });
 
-    it('should respect the remove unknown speakers setting', function(done) {
+    it('should respect the removeUnknownSpeakers setting', function(done) {
       const parser = new TranscriptParser({removeUnknownSpeakers: true});
       parser.parseOne('The quick [brown] fox jumps over the (lazy) dog.',
         (err, result) => {
