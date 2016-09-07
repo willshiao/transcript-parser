@@ -5,7 +5,9 @@ transcript-parser
 
 ## Description
 
-Parses plaintext speech/debate/radio transcripts into JavaScript objects. It is still in early development and is not stable. Pull requests are welcome.
+Parses plaintext speech/debate/radio transcripts into JavaScript objects. It is still in early development. Pull requests are welcome.
+
+Tested for Node.js versions >= 4.4.6
 
 ## Usage
 
