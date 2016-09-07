@@ -1,6 +1,6 @@
 {
   "name": "transcript-parser",
-  "version": "0.5.1",
+  "version": "0.6.0",
   "description": "Parses plaintext speech/debate/radio transcripts into JavaScript objects.",
   "main": "app.js",
   "scripts": {
