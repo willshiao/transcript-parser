@@ -5,6 +5,7 @@
  ***********************/
 const Promise = require('bluebird');
 const fs = Promise.promisifyAll(require('fs'));
+const path = require('path');
 const _ = require('lodash');
 const TranscriptParser = require('../app.js');
 const Readable = require('stream').Readable;
@@ -38,15 +39,15 @@ timePromise(() => {
   return tp.parseOne(firstTranscript);
 }).then(msg => {
   console.log('Async Parse #1:', msg);
-  return timePromise(() => {return tp.parseOne(longTranscript)});
+  return timePromise(() => tp.parseOne(longTranscript));
 }).then(msg => {
   console.log('Async Parse #2:', msg);
-  return timePromise(() => {return parseLongPromise()});
+  return timePromise(parseLongPromise);
 }).then(msg => {
   console.log('Async Parse #3:', msg);
   s.push(firstTranscript, 'utf8');
   s.push(null);
-  return timePromise(() => Promise.fromCallback(cb => tp.parseStream(s, cb)) );
+  return timePromise(() => Promise.fromCallback(cb => tp.parseStream(s, cb)));
 }).then(msg => {
   console.log('Stream Parse #1:', msg);
   s = new Readable();
@@ -75,15 +76,15 @@ function timeAsyncFunction(func, cb) {
   const start = process.hrtime();
   func(() => {
     const end = process.hrtime(start);
-    return cb(null, end[0] + 's ' + end[1]/1000000 + 'ms');
+    return cb(null, end[0] + 's ' + (end[1] / 1000000) + 'ms');
   });
-};
+}
 
 function timePromise(promise) {
   const start = process.hrtime();
   return promise().then(() => {
     const end = process.hrtime(start);
-    return Promise.resolve(end[0] + 's ' + end[1]/1000000 + 'ms');
+    return Promise.resolve(end[0] + 's ' + (end[1] / 1000000) + 'ms');
   });
 }
 
@@ -91,13 +92,13 @@ function timeFunction(func) {
   const start = process.hrtime();
   func();
   const end = process.hrtime(start);
-  return end[0] + 's ' + end[1]/1000000 + 'ms';
+  return end[0] + 's ' + (end[1] / 1000000) + 'ms';
 }
 
 function readTranscript(name) {
-  return fs.readFileAsync(__dirname + '/transcripts/'+name+'.txt', {encoding: 'utf8'});
+  return fs.readFileAsync(path.join(__dirname, `/transcripts/${name}.txt`), {encoding: 'utf8'});
 }
 
 function readTranscriptSync(name) {
-  return fs.readFileSync(__dirname + '/transcripts/'+name+'.txt', {encoding: 'utf8'});
+  return fs.readFileSync(path.join(__dirname, `/transcripts/${name}.txt`), {encoding: 'utf8'});
 }
