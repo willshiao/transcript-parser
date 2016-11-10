@@ -447,7 +447,7 @@ describe('TranscriptParser', function() {
     it('should return unchanged data if aliases are not set', function(done) {
       const tp = new TranscriptParser({aliases: {}});
       readSample(2)
-      .bind({})
+        .bind({})
         .then(info => {
           return Promise.fromCallback(cb => tp.parseOne(info, cb));
         }).then(parsed => {

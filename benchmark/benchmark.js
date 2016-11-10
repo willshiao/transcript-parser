@@ -19,9 +19,11 @@ const suite = new Benchmark.Suite();
 
 const firstTranscript = readTranscriptSync('1');
 const longTranscript = readTranscriptSync('long');
+const spacedTranscript = readTranscriptSync('manyBlank');
 
 let firstStream = makeStringStream(firstTranscript);
 let longStream = makeStringStream(longTranscript);
+let spacedStream = makeStringStream(spacedTranscript);
 
 
 /***********************
@@ -40,6 +42,12 @@ suite
       tp.parseOneSync(longTranscript);
     }
   })
+  .add('Synchronous Many-Blank Parse', {
+    defer: false,
+    fn: () => {
+      tp.parseOneSync(spacedTranscript);
+    }
+  })
   .add('Asynchronous Short Parse', {
     defer: true,
     fn: defer => {
@@ -50,6 +58,12 @@ suite
     defer: true,
     fn: defer => {
       tp.parseOne(longTranscript, () => defer.resolve());
+    }
+  })
+  .add('Asynchronous Many-Blank Parse', {
+    defer: true,
+    fn: defer => {
+      tp.parseOne(spacedTranscript, () => defer.resolve());
     }
   })
   .add('Stream Short Parse', {
@@ -74,6 +88,17 @@ suite
       });
     }
   })
+  .add('Stream Many-Blank Parse', {
+    defer: true,
+    fn: defer => {
+      tp.parseStream(spacedStream, a => {
+        //Creating the new Readable stream increases time slightly,
+        // but not by too much (< 1 ms on my machine).
+        spacedStream = makeStringStream(spacedTranscript);
+        defer.resolve();
+      });
+    }
+  })
   .on('complete', function() {
     this.forEach(printStats);
   })
@@ -94,7 +119,9 @@ function printStats(benchmark) {
 }
 
 function makeStringStream(str) {
-  const r = new Readable();
+  const r = new Readable({
+    highWaterMark: 16384 * 10
+  });
   r.push(str);
   r.push(null);
   return r;
