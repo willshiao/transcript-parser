@@ -16,30 +16,32 @@ Tested for Node.js >= v4.4.6
 
 `npm install transcript-parser`
 
-    'use strict';
-    const fs = require('fs');
-    const TranscriptParser = require('transcript-parser');
-    const tp = new TranscriptParser();
-    
-    //Synchronous example
-    const parsed = tp.parseOneSync(fs.readFileSync('transcript.txt', 'utf8'));
+```node
+'use strict';
+const fs = require('fs');
+const TranscriptParser = require('transcript-parser');
+const tp = new TranscriptParser();
+
+//Synchronous example
+const parsed = tp.parseOneSync(fs.readFileSync('transcript.txt', 'utf8'));
+console.log(parsed);
+
+//Asynchronous example
+fs.readFile('transcript.txt', (err, data) => {
+  if(err) return console.error('Error:', err);
+  tp.parseOne(data, (err, parsed) => {
+    if(err) return console.error('Error:', err);
     console.log(parsed);
-    
-    //Asynchronous example
-    fs.readFile('transcript.txt', (err, data) => {
-      if(err) return console.error('Error:', err);
-      tp.parseOne(data, (err, parsed) => {
-        if(err) return console.error('Error:', err);
-        console.log(parsed);
-      }));
-    });
-    
-    //Stream example
-    const stream = fs.createReadStream('transcript.txt', 'utf8');
-    tp.parseStream(stream, (err, parsed) => {
-      if(err) return console.error('Error:', err);
-      console.log(parsed);
-    });
+  }));
+});
+
+//Stream example
+const stream = fs.createReadStream('transcript.txt', 'utf8');
+tp.parseStream(stream, (err, parsed) => {
+  if(err) return console.error('Error:', err);
+  console.log(parsed);
+});
+```
 
 
 ## Config
@@ -154,4 +156,3 @@ Renames the names in the `order` list to match the new names in the transcript. 
     + The transcript object after being parsed.
 - `callback(err, resolved)`
     + A callback to be executed on function completion or error.
-
