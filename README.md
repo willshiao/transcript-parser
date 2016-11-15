@@ -4,6 +4,18 @@ transcript-parser
 [![Coverage Status](https://coveralls.io/repos/github/willshiao/transcript-parser/badge.svg?branch=master)](https://coveralls.io/github/willshiao/transcript-parser?branch=master)
 [![npm](https://img.shields.io/npm/v/transcript-parser.svg?maxAge=2592000)](https://www.npmjs.com/package/transcript-parser)
 
+- [Description](#description)
+- [Usage](#usage)
+- [Config](#config)
+- [Documentation](#documentation)
+  * [\.parseStream()](#parsestream)
+  * [\.parseOneSync()](#parseonesync)
+  * [\.parseOne()](#parseone)
+  * [\.resolveAliasesSync()](#resolvealiasessync)
+  * [\.resolveAliases()](#resolvealiases)
+- [Example](#example)
+
+
 ## Description
 
 Parses plaintext speech/debate/radio transcripts into JavaScript objects. It is still in early development. Pull requests are welcome.
@@ -46,13 +58,11 @@ tp.parseStream(stream, (err, parsed) => {
 
 ## Config
 
-The constructor for `TranscriptParser` accepts an options argument.
-
-#### Options:
+The constructor for `TranscriptParser` accepts a settings object.
 
 - `removeActions`
     + default: `true`
-    + Specifies if the parser should remove actions (e.g. "(APPLAUSE)").
+    + Specifies if the parser should remove actions (e.g. `(APPLAUSE)`).
 - `removeAnnotations`
     + default: `true`
     + Specifies if the parser should remove annotations (surrounded by `[]`).
@@ -72,6 +82,8 @@ The constructor for `TranscriptParser` accepts an options argument.
     + A object with the real name as the key and an `Array` of the aliases' regular expressions as the value.
     + Example: `{ "Mr. Robot": [ /[A-Z\ ]*SLATER[A-Z\ ]*/ ] }`
         * Renames all speakers who match the regex to "Mr. Robot".
+
+Settings can be changed after object creation by changing the corresponding properties of `tp.settings`, where `tp` is an instance of `TranscriptParser`.
 
 
 ## Documentation
@@ -156,3 +168,29 @@ Renames the names in the `order` list to match the new names in the transcript. 
     + The transcript object after being parsed.
 - `callback(err, resolved)`
     + A callback to be executed on function completion or error.
+
+
+## Example
+
+### Input
+```
+A: I like Node.js.
+A: I also like C#.
+B: I like Node.js too!
+A: I especially like the Node Package Manager.
+```
+
+### Output
+```node
+{
+  speaker: {
+    A: [
+      'I like Node.js.',
+      'I also like C#.',
+      'I especially like the Node Package Manager.'
+    ],
+    B: ['I like Node.js too!']
+  },
+  order: ['A', 'A', 'B', 'A']
+}
+```
