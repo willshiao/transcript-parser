@@ -27,7 +27,7 @@ describe('TranscriptParser', function() {
       readSample(1)
         .bind({})
         .then(info => {
-          var stream = fs.createReadStream(path.join(TEST_DIR, '1.txt'), 'utf8');
+          const stream = fs.createReadStream(path.join(TEST_DIR, '1.txt'), 'utf8');
           return Promise.fromCallback(cb => tp.parseStream(stream, cb));
         }).then(result => {
           this.result = result;
@@ -129,7 +129,7 @@ describe('TranscriptParser', function() {
 
     it('should remove actions by default', function() {
       const parser = new TranscriptParser();
-      var result = parser.parseOneSync('PERSON A: Hello, (PAUSES) (DRINKS WATER) my name is Bob.(APPLAUSE)');
+      const result = parser.parseOneSync('PERSON A: Hello, (PAUSES) (DRINKS WATER) my name is Bob.(APPLAUSE)');
       result.speaker.should.eql({
         'PERSON A': [ 'Hello, my name is Bob.' ]
       });
@@ -137,7 +137,7 @@ describe('TranscriptParser', function() {
 
     it('should respect the removeActions setting', function() {
       const parser = new TranscriptParser({removeActions: false});
-      var result = parser.parseOneSync('PERSON A: Hello, (PAUSES) (DRINKS WATER) my name is Bob.(APPLAUSE)');
+      const result = parser.parseOneSync('PERSON A: Hello, (PAUSES) (DRINKS WATER) my name is Bob.(APPLAUSE)');
       result.speaker.should.eql({
         'PERSON A': [ 'Hello, (PAUSES) (DRINKS WATER) my name is Bob.(APPLAUSE)' ]
       });
@@ -145,22 +145,45 @@ describe('TranscriptParser', function() {
 
     it('should respect the removeTimestamps setting', function() {
       const parser = new TranscriptParser({removeAnnotations: false, removeTimestamps: false});
-      var result = parser.parseOneSync('[20:20:34] BERMAN: [2:1:41] The...');
+      const result = parser.parseOneSync('[20:20:34] BERMAN: [2:1:41] The...');
       result.speaker.should.eql({'[20:20:34] BERMAN': ['[2:1:41] The...']});
     });
 
     it('should be able to remove timestamps without removing annotations', function() {
       const parser = new TranscriptParser({removeAnnotations: false, removeTimestamps: true});
-      var result = parser.parseOneSync('[20:20:34] BERMAN [2:1:41] : The [first] name...');
+      const result = parser.parseOneSync('[20:20:34] BERMAN [2:1:41] : The [first] name...');
       result.speaker.should.eql({'BERMAN': ['The [first] name...']});
     });
 
     it('should respect the removeUnknownSpeakers setting', function() {
       const parser = new TranscriptParser({removeUnknownSpeakers: true});
-      var result = parser.parseOneSync('The quick [brown] fox jumps over the (lazy) dog.');
+      const result = parser.parseOneSync('The quick [brown] fox jumps over the (lazy) dog.');
       result.should.eql({
         speaker: {},
         order: []
+      });
+    });
+
+    it('should respect the conciseSpeakers setting', function() {
+      const parser = new TranscriptParser({conciseSpeakers: true});
+      const result = parser.parseOneSync(`
+        A: abc
+        A: abc
+        B: def
+        A: ghi
+        B: jkl
+        B: mno`);
+      result.should.eql({
+        speaker: {
+          A: ['abc', 'abc', 'ghi'],
+          B: ['def', 'jkl', 'mno']
+        },
+        order: [
+          ['A', 2],
+          ['B', 1],
+          ['A', 1],
+          ['B', 2]
+        ]
       });
     });
 
@@ -254,6 +277,34 @@ describe('TranscriptParser', function() {
           result.should.eql({
             speaker: {},
             order: []
+          });
+          done();
+        }
+      );
+    });
+
+    it('should respect the conciseSpeakers setting', function(done) {
+      const parser = new TranscriptParser({conciseSpeakers: true});
+      parser.parseOne(`
+        A: abc
+        A: abc
+        B: def
+        A: ghi
+        B: jkl
+        B: mno`,
+        (err, result) => {
+          if(err) return done(err);
+          result.should.eql({
+            speaker: {
+              A: ['abc', 'abc', 'ghi'],
+              B: ['def', 'jkl', 'mno']
+            },
+            order: [
+              ['A', 2],
+              ['B', 1],
+              ['A', 1],
+              ['B', 2]
+            ]
           });
           done();
         }
@@ -367,8 +418,8 @@ describe('TranscriptParser', function() {
       const tp = new TranscriptParser({aliases: {}});
       readSample(2)
         .then(info => {
-          var parsed = tp.parseOneSync(info);
-          var resolved = tp.resolveAliasesSync(parsed);
+          const parsed = tp.parseOneSync(info);
+          const resolved = tp.resolveAliasesSync(parsed);
           parsed.should.equal(resolved);
           done();
         })
