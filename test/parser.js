@@ -503,11 +503,11 @@ describe('TranscriptParser', function() {
           return Promise.fromCallback(cb => tp.parseOne(info, cb));
         }).then(parsed => {
           this.parsed = parsed;
-          //With callback
+          // With callback
           return Promise.fromCallback(cb => tp.resolveAliases(parsed, cb));
         }).then(resolved => {
           this.parsed.should.equal(resolved);
-          //With Promise
+          // With Promise
           return tp.resolveAliases(this.parsed);
         }).then(resolved => {
           this.parsed.should.equal(resolved);
