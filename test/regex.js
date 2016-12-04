@@ -21,6 +21,11 @@ describe('TranscriptParser', function() {
         const testStr = 'a\nb\r\nc';
         testStr.split(regex.newLine).should.eql(['a', 'b', 'c']);
       });
+
+      it('should match multiple newlines', function() {
+        const testStr = 'a\n\r\n\r\n\nb\n\n\r\nc';
+        testStr.split(regex.newLine).should.eql(['a', 'b', 'c']);
+      });
     });
 
     describe('.action', function() {

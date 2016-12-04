@@ -39,6 +39,27 @@ describe('TranscriptParser', function() {
         .catch(e => done(e));
     });
 
+    it('should use the newLine regex', function(done) {
+      const rs = new Readable();
+      const parser = new TranscriptParser({
+        regex: { newLine: /\|/ },
+      });
+      rs.push('A: Testing.\nLF.|B: OK.\r\nCR.');
+      rs.push(null);
+      parser.parseStream(rs, (err, parsed) => {
+        if(err) return done(err);
+        const ideal = {
+          speaker: {  
+            A: ['Testing.\nLF.'],
+            B: ['OK.\r\nCR.']
+          },
+          order: ['A', 'B']
+        };
+        parsed.should.eql(ideal);
+        done();
+      });
+    });
+
     it('should respect the blacklist setting', function(done) {
       const rs = new Readable();
       const parser = new TranscriptParser({blacklist: [ 'B' ]});
@@ -135,6 +156,20 @@ describe('TranscriptParser', function() {
       });
     });
 
+    it('should use the newLine regex', function() {
+      const parser = new TranscriptParser({
+        regex: { newLine: /\|/ },
+      });
+      const result = parser.parseOneSync('A: Testing.\nLF.|B: OK.\r\nCR.');
+      result.should.eql({
+        speaker: {  
+          A: ['Testing.\nLF.'],
+          B: ['OK.\r\nCR.']
+        },
+        order: ['A', 'B']
+      });
+    });
+
     it('should respect the removeActions setting', function() {
       const parser = new TranscriptParser({removeActions: false});
       const result = parser.parseOneSync('PERSON A: Hello, (PAUSES) (DRINKS WATER) my name is Bob.(APPLAUSE)');
@@ -227,6 +262,23 @@ describe('TranscriptParser', function() {
       function(err, result) {
         if(err) return done(err);
         result.speaker.should.eql({'PERSON A': [ 'Hello, my name is Bob.' ]});
+        done();
+      });
+    });
+
+    it('should use the newLine regex', function(done) {
+      const parser = new TranscriptParser({
+        regex: { newLine: /\|/ },
+      });
+      parser.parseOne('A: Testing.\nLF.|B: OK.\r\nCR.', (err, parsed) => {
+        if(err) return done(err);
+        parsed.should.eql({
+          speaker: {  
+            A: ['Testing.\nLF.'],
+            B: ['OK.\r\nCR.']
+          },
+          order: ['A', 'B']
+        });
         done();
       });
     });
