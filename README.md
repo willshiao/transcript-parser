@@ -30,15 +30,16 @@ Tested for Node.js >= v4.4.6
 
 ```node
 'use strict';
+
 const fs = require('fs');
 const TranscriptParser = require('transcript-parser');
 const tp = new TranscriptParser();
 
-//Synchronous example
+// Synchronous example
 const parsed = tp.parseOneSync(fs.readFileSync('transcript.txt', 'utf8'));
 console.log(parsed);
 
-//Asynchronous example
+// Asynchronous example
 fs.readFile('transcript.txt', (err, data) => {
   if(err) return console.error('Error:', err);
   tp.parseOne(data, (err, parsed) => {
@@ -47,7 +48,7 @@ fs.readFile('transcript.txt', (err, data) => {
   }));
 });
 
-//Stream example
+// Stream example
 const stream = fs.createReadStream('transcript.txt', 'utf8');
 tp.parseStream(stream, (err, parsed) => {
   if(err) return console.error('Error:', err);
@@ -82,6 +83,13 @@ The constructor for `TranscriptParser` accepts a settings object.
     + A object with the real name as the key and an `Array` of the aliases' regular expressions as the value.
     + Example: `{ "Mr. Robot": [ /[A-Z\ ]*SLATER[A-Z\ ]*/ ] }`
         * Renames all speakers who match the regex to "Mr. Robot".
+- `regex` _(>= v0.7.1)_
+  + `newLine`
+    * default: `/(?:\r?\n)+/` (`RegExp` literal)
+    * The regular expression used to match new line seperators (CRLF, LF).
+    * Should be set to match multiple consecutive seperators for the fastest parsing.
+    * Example: `/\|/`
+      - Uses a single pipe (`|`) symbol to indicate a new line instead of the traditional LF or CRLF.
 
 Settings can be changed after object creation by changing the corresponding properties of `tp.settings`, where `tp` is an instance of `TranscriptParser`.
 
