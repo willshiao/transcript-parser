@@ -3,6 +3,7 @@ transcript-parser
 [![Build Status](https://travis-ci.org/willshiao/transcript-parser.svg?branch=master)](https://travis-ci.org/willshiao/transcript-parser)
 [![Coverage Status](https://coveralls.io/repos/github/willshiao/transcript-parser/badge.svg?branch=master)](https://coveralls.io/github/willshiao/transcript-parser?branch=master)
 [![npm](https://img.shields.io/npm/v/transcript-parser.svg?maxAge=2592000)](https://www.npmjs.com/package/transcript-parser)
+[![Known Vulnerabilities](https://snyk.io/test/github/willshiao/transcript-parser/badge.svg)](https://snyk.io/test/github/willshiao/transcript-parser)
 
 - [Description](#description)
 - [Usage](#usage)
