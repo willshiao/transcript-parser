@@ -6,7 +6,9 @@
   "scripts": {
     "test": "mocha",
     "travis-test": "node ./node_modules/istanbul/lib/cli.js cover ./node_modules/mocha/bin/_mocha",
-    "benchmark": "node ./benchmark/benchmark.js"
+    "benchmark": "node ./benchmark/benchmark.js",
+    "snyk-protect": "snyk protect",
+    "prepublish": "npm run snyk-protect"
   },
   "repository": {
     "type": "git",
@@ -37,6 +39,8 @@
   "dependencies": {
     "bluebird": "^3.3.4",
     "event-stream": "^3.3.4",
-    "lodash": "^4.9.0"
-  }
+    "lodash": "^4.9.0",
+    "snyk": "^1.316.1"
+  },
+  "snyk": true
 }
